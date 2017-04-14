@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>Home Page</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="contentRoute" th:content="${contentRoute}">
+  <meta name="productRoute" th:content="${productRoute}">
+  <meta name="cartRoute" th:content="${cartRoute}">
+  <link th:href="${contentRoute + '/css/content-styles.css'}" rel="stylesheet">
+  <link th:href="${productRoute + '/css/product-styles.css'}" rel="stylesheet">
+</head>
+
+<body>
+  <h1>Home Page</h1>
+  <p>This home page is delivered from the content service.</p>
+  <!--#include virtual="[[${productRoute}]]/products" -->
+</body>
+
+</html>

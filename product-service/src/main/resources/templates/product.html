@@ -1,0 +1,7 @@
+<div class="product-details">
+  <p>This fragment is delivered by the product service.</p>
+  <h1 th:text="${product.name}">Product Name</h1>
+  <p th:text="${product.description}">Product Description</p>
+  <p th:text="${#numbers.formatCurrency(product.price)}">Product Price</p>
+  <p><a href="#">Add to cart</a> <a th:href="${contentRoute + '/'}">Back to home page</a></p>
+</div>

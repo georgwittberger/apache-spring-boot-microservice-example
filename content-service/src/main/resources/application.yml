@@ -1,2 +1,6 @@
 server:
   port: 11080
+spring:
+  thymeleaf:
+    mode: HTML
+  

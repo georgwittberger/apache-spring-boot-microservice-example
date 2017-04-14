@@ -1,6 +1,5 @@
 server:
   port: 11081
-  context-path: /product-service
 spring:
   thymeleaf:
     mode: HTML
