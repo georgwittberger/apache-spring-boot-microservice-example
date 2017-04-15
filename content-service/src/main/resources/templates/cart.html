@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-  <title>Home Page</title>
+  <title>Cart Page</title>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="contentRoute" data-th-content="${contentRoute}">
@@ -14,13 +14,10 @@
 </head>
 
 <body>
-  <h1>Home Page</h1>
-  <p>This home page is delivered from the content service.</p>
-  <p>You have <span class="cart-js--line-item-count">0</span> products in your cart.
-    <a data-th-href="${contentRoute + '/cart'}">View cart</a></p>
+  <h1>Cart Page</h1>
+  <p>This product page is delivered from the content service.</p>
 
-  <!-- Include the product list from the product service. -->
-  <!--#include virtual="[[${productRoute}]]/products" -->
+  <div class="cart-js--line-item-list"></div>
 
   <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
     crossorigin="anonymous"></script>

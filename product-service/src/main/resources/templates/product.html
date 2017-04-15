@@ -1,7 +1,10 @@
 <div class="product-details">
   <p>This fragment is delivered by the product service.</p>
-  <h1 th:text="${product.name}">Product Name</h1>
-  <p th:text="${product.description}">Product Description</p>
-  <p th:text="${#numbers.formatCurrency(product.price)}">Product Price</p>
-  <p><a href="#">Add to cart</a> <a th:href="${contentRoute + '/'}">Back to home page</a></p>
+  <h1 data-th-text="${product.name}">Product Name</h1>
+  <p data-th-text="${product.description}">Product Description</p>
+  <p data-th-text="${#numbers.formatCurrency(product.price)}">Product Price</p>
+  <p>
+    <a href="#" class="cart-js--add-line-item" data-th-data-product-seo-name="${product.seoName}">Add to cart</a>
+    <a data-th-href="${contentRoute + '/'}">Back to home page</a>
+  </p>
 </div>

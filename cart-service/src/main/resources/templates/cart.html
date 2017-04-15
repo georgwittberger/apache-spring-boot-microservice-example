@@ -1,0 +1,7 @@
+<div class="line-item-list">
+  <p>This fragment is delivered by the cart service.</p>
+  <div data-th-each="lineItem : ${cart.lineItems}">
+    <h2 data-th-text="${lineItem.productName}">Product Name</h2>
+    <p data-th-text="${#numbers.formatCurrency(lineItem.productPrice)}">Product Price</p>
+  </div>
+</div>

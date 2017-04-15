@@ -5,17 +5,26 @@
   <title>Product Page</title>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="contentRoute" th:content="${contentRoute}">
-  <meta name="productRoute" th:content="${productRoute}">
-  <meta name="cartRoute" th:content="${cartRoute}">
-  <link th:href="${contentRoute + '/css/content-styles.css'}" rel="stylesheet">
-  <link th:href="${productRoute + '/css/product-styles.css'}" rel="stylesheet">
+  <meta name="contentRoute" data-th-content="${contentRoute}">
+  <meta name="productRoute" data-th-content="${productRoute}">
+  <meta name="cartRoute" data-th-content="${cartRoute}">
+  <link data-th-href="${contentRoute + '/css/content-styles.css'}" rel="stylesheet">
+  <link data-th-href="${productRoute + '/css/product-styles.css'}" rel="stylesheet">
+  <link data-th-href="${cartRoute + '/css/cart-styles.css'}" rel="stylesheet">
 </head>
 
 <body>
   <h1>Product Page</h1>
   <p>This product page is delivered from the content service.</p>
-  <!--#include virtual="[[${productRoute}]]/product/[[${seoName}]]" -->
+  <p>You have <span class="cart-js--line-item-count">0</span> products in your cart.
+    <a data-th-href="${contentRoute + '/cart'}">View cart</a></p>
+
+  <!-- Include the product details from the product service. -->
+  <!--#include virtual="[[${productRoute}]]/products/[[${seoName}]]" -->
+
+  <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+    crossorigin="anonymous"></script>
+  <script data-th-src="${cartRoute + '/js/cart-scripts.js'}"></script>
 </body>
 
 </html>

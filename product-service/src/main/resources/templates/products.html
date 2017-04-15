@@ -1,9 +1,9 @@
 <div class="product-list">
   <p>This fragment is delivered by the product service.</p>
-  <div th:each="product : ${products}">
+  <div data-th-each="product : ${products}">
     <!-- Assuming an interface contract that the content service provides product pages with the route '/product/{seoName}'. -->
-    <h2><a th:href="${contentRoute + '/product/' + product.seoName}" th:text="${product.name}">Product Name</a></h2>
-    <p th:text="${product.description}">Product Description</p>
-    <p th:text="${#numbers.formatCurrency(product.price)}">Product Price</p>
+    <h2><a data-th-href="${contentRoute + '/product/' + product.seoName}" data-th-text="${product.name}">Product Name</a></h2>
+    <p data-th-text="${product.description}">Product Description</p>
+    <p data-th-text="${#numbers.formatCurrency(product.price)}">Product Price</p>
   </div>
 </div>
