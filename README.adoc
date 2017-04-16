@@ -1,0 +1,87 @@
+= Apache Web Server and Spring Boot Microservice Example
+
+This example project demonstrates a concept to compose web pages with content from multiple microservices. It shows two major techniques to include fragments from different service backends into a single web page. The project is based on the Apache web server and three Spring Boot web applications but the general integration concept can be adopted to any other server technology as well.
+
+The domain of the example is situated in the e-commerce context. It can be thought of a very early stage of what could become an online shop application. We have a home page with a product list, we can navigate to product details pages and we can add products to a shopping cart.
+
+The next sections describe how to make the project run on your machine and then discuss the ideas how everything plays together.
+
+== Building and running the project
+
+=== Prerequisites
+
+In order to build and run this example project on your machine you need the following software installations:
+
+* Java Development Kit 8.0 (http://www.oracle.com/technetwork/java/javase/downloads/index.html)
+* Apache Maven 3.3 or higher (https://maven.apache.org/), with the `bin` directory included in your `PATH`
+* Apache Web Server 2.4 (https://httpd.apache.org/)
+
+=== Configuring the web server
+
+Once you have downloaded or compiled the Apache web server you have to set it up like this:
+
+. Copy the file `apache-configuration/httpd-microservice-example.conf` from this project to your Apache `conf` directory.
+. Open your Apache `conf/httpd.conf` file with a text editor.
+. Uncomment the `LoadModule` directives for the following modules (if commented):
+  * headers_module
+  * include_module
+  * proxy_module
+  * proxy_http_module
+. Insert the following line at the end of the file:
+
+  Include conf/httpd-microservice-example.conf
+
+. Start the web server or reload the configuration if it is already running.
+
+=== Building and running the microservices
+
+The project is made of three separate services which can be built and run independently. All these web applications are created using Spring Boot and must be built with Maven.
+
+_Note: Your Maven `bin` directory must be included in the `PATH` environment variable and you should have set the environment variable `JAVA&#95;HOME` to point to the installation directory of your Java Development Kit._
+
+. Open a terminal in the `cart-service` directory of this project.
+. Run the command: `mvn spring-boot:run`.
+. Open a terminal in the `content-service` directory of this project.
+. Run the command: `mvn spring-boot:run`.
+. Open a terminal in the `product-service` directory of this project.
+. Run the command: `mvn spring-boot:run`.
+
+For each service application the terminal should be blocked with a last INFO message like: `Started Application in 2.484 seconds (JVM running for 4.989)`.
+
+=== Testing the project
+
+As soon as you have configured and started the Apache web server and all three microservices are up and running you may want to try the application in your web browser. Just open the root URL of your web server like this:
+
+http://localhost/
+
+You should see the home page with a list of products inside a blue rectangle. If so, congratulations, it works!
+
+== Understanding the concept
+
+=== Architecture
+
+In this example we have four systems playing together as a single application. Each system provides services for its dedicated domain. For example, the `cart-service` is responsible for everything that deals with the shopping cart. Of course the systems must be able to interact with each other since they may need data from other services to fulfill their purpose. For example, the `cart-service` needs product data from the `product-service` when the user attempts to add a product to the shopping cart. Therefore, the systems are connected by some kind of interface for which the developers of both systems must negotiate a contract.
+
+The following picture shows a rough overview of the systems and their interfaces in this example project:
+
+TODO: Insert architecture picture
+
+The Apache web server acts as a reverse proxy which is responsible for the following tasks:
+
+. Receive all requests coming from the browsers and dispatch them to the appropriate backend service. For example, all requests sent to the URL http://localhost/product-service/ (or any subpath) are internally dispatched to the product service application.
+. Resolve server-side-includes (SSI). This is one of the web page composition approaches which will be discussed later. For example, the pages delivered by the `content-service` use SSI to include fragments from the `product-service`.
+
+The `content-service` is intended to provide all the HTML content for the web pages. It generates the outer frame of each page and includes some stylesheets to make it look beautiful. In real life this could be a content management system (CMS) where editors can create landing pages and frames for some more functional pages.
+
+The `product-service` is responsible for everything regarding product data. It provides interfaces which can be accessed to retrieve lists of products or the details of a single product. As shown in the picture, the product data is delivered in different formats: HTML for direct inclusion in web pages and JSON for backend interfaces.
+
+The `cart-service` handles the session-based shopping carts. It offers REST-like interfaces to add products to the cart and retrieve the current cart contents. Furthermore, it provides its own JavaScript library which can be used to enrich web pages with cart-specific functionality.
+
+=== Web Page Composition
+
+For a web application which is made of multiple microservices the question arises how content and features provided by the different services can be brought together on a single web page that the user opens in the browser. Basically, there are two techniques to compose content from multiple sources.
+
+* Server-side composition: The final web page is assembled on the server side. This can be done in several ways. One server application generating the page may call another one to fetch the data required to finish the content. Or the application places a server-side-include in the HTML content which is then resolved by a reverse proxy.
+* Client-side composition: The initially unfinished web page is populated with content once it has been loaded in the user's browser. This can be achieved by including JavaScripts which load additional data from certain microservices and enrich the page with dynamically generated HTML content.
+
+The following sections discusses the pros and cons of both approaches and give an insight where they are used in this example project.
