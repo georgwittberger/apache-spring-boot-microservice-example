@@ -1,0 +1,19 @@
+<div class="line-item-list">
+  <p>This fragment is generated using a template from the content service and data from the cart service.</p>
+  <table>
+    <thead>
+      <tr>
+        <th>Product</th>
+        <th>Price</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#lineItems}}
+      <tr>
+        <td>{{productName}}</td>
+        <td>{{productPrice}}</td>
+      </tr>
+      {{/lineItems}}
+    </tbody>
+  </table>
+</div>

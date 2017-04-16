@@ -1,7 +1,14 @@
-(function ($) {
+(function ($, Mustache) {
+  'use strict';
+
   // Check if jQuery has been loaded in the page.
-  if (typeof $ === 'undefined') {
+  if (!$) {
     console.error('Cart scripts require jQuery.');
+    return;
+  }
+  // Check if Mustache has been loaded in the page.
+  if (!Mustache) {
+    console.error('Cart scripts require Mustache.');
     return;
   }
 
@@ -14,10 +21,10 @@
   var updateLineItemCount = function () {
     var lineItemCounts = $('.cart-js--line-item-count');
     if (lineItemCounts.length) {
-      $.get(cartRoute + '/count').done(function (count) {
+      $.get(cartRoute + '/count').then(function (count) {
         lineItemCounts.text(count);
-      }).fail(function () {
-        console.error('Cart line item count could not be loaded.');
+      }).catch(function (xhr, statusText) {
+        console.error('Cart line item count could not be loaded. Error: ', statusText);
       });
     }
   };
@@ -32,29 +39,38 @@
     }
 
     // Register an event handler for clicks on the "Add product to cart" links.
-    // This will fetch the product's SEO name from the data attribute and call
-    // the cart service to add the product to the cart.
+    // It will fetch the product's SEO name from the data attribute required on the link
+    // and call the cart service via AJAX to add the product to the cart.
     $('.cart-js--add-line-item').click(function (event) {
       var productSeoName = $(event.currentTarget).data('product-seo-name');
-      $.get(cartRoute + '/add/' + productSeoName).done(function (cart) {
+      $.get(cartRoute + '/add/' + productSeoName).then(function (cart) {
         updateLineItemCount();
-      }).fail(function () {
-        console.error('Product with SEO name "' + productSeoName + '" could not be added to cart.');
+      }).catch(function (xhr, statusText) {
+        console.error('Product with SEO name "' + productSeoName + '" could not be added to cart. Error: ', statusText);
       });
       event.preventDefault();
     });
 
     // Load the line item list if such an element is present in the page.
-    var lineitemLists = $('.cart-js--line-item-list');
-    if (lineitemLists.length) {
-      $.get(cartRoute + '/view').done(function (list) {
-        lineitemLists.html(list);
-      }).fail(function () {
-        console.error('Cart line item list could not be loaded.');
+    // The line item data is loaded via AJAX from the cart service.
+    // The template used to render the HTML is loaded via AJAX from the URL given in the data attribute.
+    // Once both AJAX responses have been received the HTML output is rendered using Mustache.
+    var lineItemLists = $('.cart-js--line-item-list');
+    if (lineItemLists.length) {
+      var lineItemDataPromise = $.get(cartRoute + '/view');
+      lineItemLists.each(function () {
+        var lineItemListElement = $(this);
+        var templateURL = lineItemListElement.data('cart-js-template');
+        $.when(lineItemDataPromise, $.get(templateURL)).then(function (data, template) {
+          var lineItemList = Mustache.render(template[0], data[0]);
+          lineItemListElement.html(lineItemList);
+        }).catch(function (xhr, statusText) {
+          console.error('Cart line item list could not be loaded. Error: ', statusText);
+        });
       });
     }
 
     // Initialize the line item count elements.
     updateLineItemCount();
   });
-})(jQuery);
+})(typeof jQuery !== 'undefined' ? jQuery : undefined, typeof Mustache !== 'undefined' ? Mustache : undefined);
