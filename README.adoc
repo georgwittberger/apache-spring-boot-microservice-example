@@ -1,10 +1,10 @@
 = Apache Web Server and Spring Boot Microservice Example
 
-This example project demonstrates a concept to compose web pages with content from multiple microservices. It shows two major techniques to include fragments from different service backends into a single web page. The project is based on the Apache web server and three Spring Boot web applications but the general integration concept can be adopted to any other server technology as well.
+This example project demonstrates a concept to compose web pages with content from multiple microservices. It shows two major techniques to include fragments from different service applications into a single web page. The project requires an Apache web server and comes with three Spring Boot web applications. Nevertheless, the general integration concept can be adopted to any other server technology as well.
 
 The domain of the example is situated in the e-commerce context. It can be thought of a very early stage of what could become an online shop application. We have a home page with a product list, we can navigate to product details pages and we can add products to a shopping cart.
 
-The next sections describe how to make the project run on your machine and then discuss the ideas how everything plays together.
+The next sections describe how to make the project run on your machine and then discuss the concept how everything plays together.
 
 == Building and running the project
 
@@ -12,13 +12,15 @@ The next sections describe how to make the project run on your machine and then 
 
 In order to build and run this example project on your machine you need the following software installations:
 
-* Java Development Kit 8.0 (http://www.oracle.com/technetwork/java/javase/downloads/index.html)
-* Apache Maven 3.3 or higher (https://maven.apache.org/), with the `bin` directory included in your `PATH`
-* Apache Web Server 2.4 (https://httpd.apache.org/)
+* http://www.oracle.com/technetwork/java/javase/downloads/index.html[Java Development Kit 8.0]
+* https://maven.apache.org/[Apache Maven 3.3] or higher
+* https://httpd.apache.org/[Apache Web Server 2.4]
+
+_Note: Add the Maven `bin` directory to your `PATH` and set the environment variable `JAVA&#95;HOME` to point to the installation directory of the Java Development Kit._
 
 === Configuring the web server
 
-Once you have downloaded or compiled the Apache web server you have to set it up like this:
+Once you have downloaded or compiled the Apache web server you have to tweak the configuration a little bit.
 
 . Copy the file `apache-configuration/httpd-microservice-example.conf` from this project to your Apache `conf` directory.
 . Open your Apache `conf/httpd.conf` file with a text editor.
@@ -27,7 +29,7 @@ Once you have downloaded or compiled the Apache web server you have to set it up
   * include_module
   * proxy_module
   * proxy_http_module
-. Insert the following line at the end of the file:
+. Insert the following line at the end of `httpd.conf`:
 
   Include conf/httpd-microservice-example.conf
 
@@ -35,53 +37,121 @@ Once you have downloaded or compiled the Apache web server you have to set it up
 
 === Building and running the microservices
 
-The project is made of three separate services which can be built and run independently. All these web applications are created using Spring Boot and must be built with Maven.
-
-_Note: Your Maven `bin` directory must be included in the `PATH` environment variable and you should have set the environment variable `JAVA&#95;HOME` to point to the installation directory of your Java Development Kit._
+The example application is made of three separate microservices which can be built and run independently. All these web applications have been created using Spring Boot and must be built with Maven.
 
 . Open a terminal in the `cart-service` directory of this project.
-. Run the command: `mvn spring-boot:run`.
+. Run the command: `mvn spring-boot:run`. This will build and run the cart service on `localhost:11082`.
 . Open a terminal in the `content-service` directory of this project.
-. Run the command: `mvn spring-boot:run`.
+. Run the command: `mvn spring-boot:run`. This will build and run the content service on `localhost:11080`.
 . Open a terminal in the `product-service` directory of this project.
-. Run the command: `mvn spring-boot:run`.
+. Run the command: `mvn spring-boot:run`. This will build and run the product service on `localhost:11081`.
 
-For each service application the terminal should be blocked with a last INFO message like: `Started Application in 2.484 seconds (JVM running for 4.989)`.
+For each service application the terminal should be blocked with a last `INFO` message like: `Started Application in 2.484 seconds (JVM running for 4.989)`. The purpose of these microservices is explained in detail in the <<Architecture>> section.
 
 === Testing the project
 
-As soon as you have configured and started the Apache web server and all three microservices are up and running you may want to try the application in your web browser. Just open the root URL of your web server like this:
+As soon as you have configured and started the Apache web server and all three microservices are up and running you may want to try the whole application in your web browser. Just open the root URL of your web server.
 
-http://localhost/
+Assuming your web server is listening on port 80 then go to: http://localhost/
 
-You should see the home page with a list of products inside a blue rectangle. If so, congratulations, it works!
+You should see the home page with a list of products inside a blue rectangle.
 
 == Understanding the concept
 
 === Architecture
 
-In this example we have four systems playing together as a single application. Each system provides services for its dedicated domain. For example, the `cart-service` is responsible for everything that deals with the shopping cart. Of course the systems must be able to interact with each other since they may need data from other services to fulfill their purpose. For example, the `cart-service` needs product data from the `product-service` when the user attempts to add a product to the shopping cart. Therefore, the systems are connected by some kind of interface for which the developers of both systems must negotiate a contract.
+In this example we have three microservices playing together as a single web application. Each application provides services for its dedicated domain. However, the web pages delivered to the user should look and behave like they were generated by a single application. So the three microservices have to be composed somehow in order to allow the user to interact with all services on a single page.
 
-The following picture shows a rough overview of the systems and their interfaces in this example project:
+The following picture shows an overview of the applications and their interfaces.
 
-TODO: Insert architecture picture
+image::https://github.com/georgwittberger/apache-spring-boot-microservice-example/blob/master/architecture.png[Architecture,align="center"]
 
 The Apache web server acts as a reverse proxy which is responsible for the following tasks:
 
-. Receive all requests coming from the browsers and dispatch them to the appropriate backend service. For example, all requests sent to the URL http://localhost/product-service/ (or any subpath) are internally dispatched to the product service application.
-. Resolve server-side-includes (SSI). This is one of the web page composition approaches which will be discussed later. For example, the pages delivered by the `content-service` use SSI to include fragments from the `product-service`.
+. Receive all requests from the browsers and dispatch them to the appropriate backend services. For example, all requests sent to the URL http://localhost/product-service/ (or any subpath) are internally dispatched to the product service application running on `localhost:11081`.
+. Set additional request headers to allow backend services to create valid public links to their resources. See the `RequestHeader` directives in the configuration file `apache-configuration/httpd-microservice-example.conf`. Those `X-Public-...` headers are utilized by the `RouteControllerAdvice` which can be found in all three microservices.
+. Resolve server-side-includes (SSI). This is one of the web page composition approaches which will be discussed later. For example, the pages delivered by the content service use SSI to include fragments from the product service.
 
-The `content-service` is intended to provide all the HTML content for the web pages. It generates the outer frame of each page and includes some stylesheets to make it look beautiful. In real life this could be a content management system (CMS) where editors can create landing pages and frames for some more functional pages.
+The content service is intended to provide the main HTML content for the web pages. It generates the outer frame of each page and includes some stylesheets to make it look beautiful. In real life this could be a content management system (CMS) where editors can create landing pages and frames for some more functional pages.
 
-The `product-service` is responsible for everything regarding product data. It provides interfaces which can be accessed to retrieve lists of products or the details of a single product. As shown in the picture, the product data is delivered in different formats: HTML for direct inclusion in web pages and JSON for backend interfaces.
+The product service is responsible for everything regarding product data. It provides interfaces which can be accessed to retrieve lists of products or the details of a single product. As shown in the picture, the product data is delivered in different formats: HTML for direct inclusion in web pages and JSON for backend interfaces.
 
-The `cart-service` handles the session-based shopping carts. It offers REST-like interfaces to add products to the cart and retrieve the current cart contents. Furthermore, it provides its own JavaScript library which can be used to enrich web pages with cart-specific functionality.
+The cart service handles the session-based shopping carts. It offers REST-like interfaces to add products to the cart and retrieve the current cart contents. Furthermore, it provides its own JavaScript library which can be used to enrich web pages with cart-specific functionality.
 
 === Web Page Composition
 
-For a web application which is made of multiple microservices the question arises how content and features provided by the different services can be brought together on a single web page that the user opens in the browser. Basically, there are two techniques to compose content from multiple sources.
+For a web application which is made of multiple microservices the question arises how content and services provided by the different applications can be brought together on a single web page that the user opens in the browser. Basically, there are two techniques to achieve that.
 
 * Server-side composition: The final web page is assembled on the server side. This can be done in several ways. One server application generating the page may call another one to fetch the data required to finish the content. Or the application places a server-side-include in the HTML content which is then resolved by a reverse proxy.
 * Client-side composition: The initially unfinished web page is populated with content once it has been loaded in the user's browser. This can be achieved by including JavaScripts which load additional data from certain microservices and enrich the page with dynamically generated HTML content.
 
 The following sections discusses the pros and cons of both approaches and give an insight where they are used in this example project.
+
+==== Server-Side Composition
+
+Assembling a web page on the server by using data retrieved from several systems is a quite traditional approach and has been practiced even in the earliest web applications. Every system that needs to store business data in a separate database makes use of this kind of composition when it retrieves data from that database to present it to the user. It is fairly valid to adopt this techniques for content to be loaded from other microservices. Nevertheless, this has benefits and disadvantages.
+
+The good thing about server-side composition is that the user gets the final web page at once. As soon as the HTML content for the initial page request has been received the user can be sure that the page already contains all relevant data. This aspect is very important for search engine optimization (SEO) because crawlers generally do not execute JavaScript and therefore cannot "see" content which is created client-side.
+
+Unfortunately, the server-side approach has some drawbacks. As a consequence of delivering the final page at once all relevant content must be ready before the server can send the response to the browser. That makes this technique prone to bad page loading performance. Imagine one of the microservices is experiencing performance issues. Then all other services depending on its data will also slow down, thus leading to bad performance for these services as well.
+
+*We use server-side composition only for content that is SEO-relevant, i.e. must be visible to search engines crawling the web pages.*
+
+From a technical view there are different ways to assemble a page at the server side.
+
+Direct interfaces::
+The application requiring some data from another service calls a network interface on the other application to fetch the data. This method is perfectly valid for data required for processing the business logic. Retrieving data in this manner just for the purpose of page composition is a little bit cumbersome because the calling application has to deal with all the impassibilities that may occour on the network interface. This may take a lot of effort to implement. On the other hand, it may be an advantage to exchange data required for display in a technical format like JSON and leave control over the generated HTML document at a single application.
++
+In the example project we do not use this kind of interface for page composition. If we did we would have implemented a direct call from the content service to the product service in order to fetch the product list to be displayed on the home page.
+
+Server-Side-Includes (SSI)::
+The application requiring a content fragment from another service simply generates a SSI comment at the desired location in the HTML content. A reverse proxy server in front of all microservices picks up those includes and resolves them by executing additional requests to the appropriate applications. One advantage of this method is that it reduces the implementation effort to generating a simple HTML comment with a special syntax. The developers of the backend services do not need to care about how that content is loaded.
++
+In the example project we use SSI on the home page and product page to include content fragments from the product service. See the content service template `src/main/resources/templates/index.html` which is responsible for rendering the frame of the home page. It contains a typical SSI comment `&#60;!--#include virtual="url" --&#62;` that refers to the public URL of the product list provided by the product service. A notable drawback of this method is that the product service must provide HTML fragments that fit the HTML structure generated by the content service. So it needs some kind of interface contract between those two microservices to describe how the HTML structure must look like.
++
+There are advanced flavours of SSI which offer additional features.
++
+* https://en.wikipedia.org/wiki/Edge_Side_Includes[Edge-Side-Includes] are XML-style tags with some more possibilities than with SSI. However, they are only supported by a few proxy servers like Varnish or proprietary networks like Akamai.
+* https://github.com/tes/compoxure[Compoxure] is an Express middleware situated in the Node.js ecosystem. It offers a lot of additional features which are typically not found in a traditional reverse proxy server. If the pure SSI functionality of Apache or nginx is not sufficient this could be a promising alternative.
+
+==== Client-Side Composition
+
+If all we want is bring together content from different microservices right on the web page the question has to be forced: Why not let the browser put together the puzzle pieces? Over the last years quite a lot of JavaScript frameworks have been developed to address this problem of page composition, https://angular.io/[Angular], https://facebook.github.io/react/[React] and https://www.polymer-project.org/[Polymer] just to name a few. Many well-respected companies have applied this technique to create modern web experiences for their users.
+
+One major benefit of client-side composition is the decoupling from server-side page rendering. This allows web application responsible for the delivery of web page to respond quickly so that users see a result very fast. Additional content is loaded dynamically in the browser and may even be left out if a microservice is struggling with performance issues without affecting user experience that much.
+
+However, this kind of integration is not suitable for all types content. Since the additional fragments are generated dynamically using JavaScript they are effectively invisible for search engines. This makes the approach unusable for SEO-relevant content. Moreover, fetching data and rendering HTML code in the browser requires additional JavaScript code to be transferred to the client. Depending on the framework this can be a significant overhead compared to web pages rendered server-side.
+
+*We use client-side composition to extend a web page with dynamic content and behaviour which should not be visible to search engines.*
+
+From a technical perspective the general approach is always similar and the available frameworks solve it in their own way.
+
+. The application that wants to include content or services from another one adds two things to its web page:
+  * Marker elements to indicate where visible content should appear
+  * JavaScript references to scripts provided by the other service application
+. Once the web page has been received by the browser the referenced JavaScripts are loaded from the other application.
+. The scripts pick up the marker elements in the page, load additional data from their microservice and populate the elements with HTML content.
+. The scripts may also add behaviour to the web page, like event handling for certain links.
+
+In the example project we use client-side composition for the shopping cart features.
+
+Including simple content::
+An example for simple content included dynamically in the page is the counter displaying the number of products in the shopping cart. Have a look at the home page template in the content service: `src/main/resources/templates/index.html`. It contains just a marker element `<span class="cart-js--line-item-count">0</span>` to define the position where the counter is supposed to appear. The page also includes the JavaScript provided by the cart service using the `<script>` tag with a reference to `/js/cart-scripts.js`. See this JavaScript file in the cart service: `src/main/resources/static/js/cart-scripts.js`. It picks up elements with the particular CSS class `cart-js--line-item-count` and populates them with the number of line items retrieved via AJAX from the cart service. If the cart service should be unavailable nothing really dramatic happens. The counter simply remains at zero without affecting the other features of the web page.
+
+Including complex content::
+A more complex page fragment is the list of items in the shopping cart which can be viewed on the cart page. The cart page itself is provided by the content service, see the corresponding template file `src/main/resources/templates/cart.html`. As with the simple content before it contains a marker element `<div class="cart-js--line-item-list"></div>` and the reference to the JavaScript provided by the cart service.
++
+Although it would be possible to simply load a HTML fragment via AJAX and plug it into the element this would raise the same problem as with server-side-includes: The cart service would have some kind of HTML structure contract with the content service to ensure that the fragment fits the outer frame of the page. Therefore, we took this approach one step further and separated data supply from HTML rendering. Note the additional attribute `data-cart-js-template` on the marker element in cart page template. It defines a URL of an additional template file which will be used by the cart service's JavaScript to render the HTML code for the page fragment right in the browser. Looking at the JavaScript file `src/main/resources/static/js/cart-scripts.js` you will notice that there are two AJAX requests to populate this line item list component: One for loading the current shopping cart contents in JSON format and another one to load the rendering template referenced by the special `data-cart-js-template` attribute. Finally, the script uses a client-side template engine (mustache.js in this case) to generate the final HTML code to be inserted in the marker element.
++
+Again we have a high grade of independence here because the cart page can still be displayed if the cart service is down. It will only be missing the line item list. And we allowed the developers of the content service to keep control over the generated HTML document as long as their templates comply with the data structure provided by the cart service interface. Higher-level frameworks like Angular promote the separation of view data and rendering as well.
+
+Adding behaviour::
+The integration of additional behaviour can be found on the product page which contains a hyperlink allowing to add the product to the shopping cart. See the template for this page fragment in the product service: `src/main/resources/templates/product.html`. It contains the hyperlink `<a href="#" class="cart-js--add-line-item">Add to cart</a>` with a special CSS class. Links marked with the CSS class `cart-js--add-line-item` are picked up by the JavaScript provided by the cart service. See the JavaScript file: `src/main/resources/static/js/cart-scripts.js`. The script expects such links to have an additional `data-product-seo-name` attribute which will be used to determine the product identifier. An event handler is attached to these hyperlinks so that they trigger an AJAX request to a cart service interface when clicked by the user.
+
+== Conclusion
+
+There are various ways to compose content from multiple microservices on a single web page. We have to decide carefully when choosing one or the other technique. The main decision criterion seems to be if the content to be included is SEO-relevant or not. We should use server-side composition methods for SEO-relevant content and leverage the client-side integration for the rest.
+
+== License
+
+https://opensource.org/licenses/MIT[MIT]
