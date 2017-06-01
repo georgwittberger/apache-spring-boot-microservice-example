@@ -3,6 +3,9 @@ server:
   session:
     cookie:
       name: cart-session-id
+spring:
+  thymeleaf:
+    mode: HTML
 service:
   product:
     url: http://localhost:11081

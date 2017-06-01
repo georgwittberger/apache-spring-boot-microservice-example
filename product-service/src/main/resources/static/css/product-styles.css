@@ -1,3 +1,11 @@
-.product-list, .product-details {
-  border: 2px dashed blue;
+.product-list-item {
+  border-bottom: 2px solid gray;
+}
+
+.product-list-item h2, .product-details h2 {
+  font-size: 16pt;
+}
+
+.product-details a {
+  margin-right: 10px;
 }

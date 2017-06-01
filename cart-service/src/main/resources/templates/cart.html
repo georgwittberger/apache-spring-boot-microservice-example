@@ -14,19 +14,34 @@
 </head>
 
 <body>
+
+  <!--#include virtual="[[${contentRoute}]]/fragments/default-header.html" -->
+
   <h1>Cart Page</h1>
-  <p>This product page is delivered from the content service.</p>
+  <p>This page is delivered by the cart service.</p>
 
-  <!-- Define the marker element to be filled by the cart service's script. -->
-  <div class="cart-js--line-item-list" data-th-data-cart-js-template="${contentRoute + '/fragments/line-item-list.html'}"></div>
+  <table class="line-items-table">
+    <thead>
+      <tr>
+        <th>Product Name</th>
+        <th>Price</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr data-th-each="lineItem : ${cart.lineItems}">
+        <td data-th-text="${lineItem.productName}">Product Name</td>
+        <td data-th-text="${#numbers.formatCurrency(lineItem.productPrice)}">Price</td>
+      </tr>
+    </tbody>
+  </table>
 
-  <p><a data-th-href="${contentRoute + '/'}">Back to home page</a></p>
+  <p><a href="#" data-th-href="${productRoute}">Back to products list</a></p>
 
-  <!-- Load jQuery and Mustache required by the cart scripts. -->
+  <!--#include virtual="[[${contentRoute}]]/fragments/default-footer.html" -->
+
+  <!-- Load jQuery required by the cart scripts. -->
   <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
-    crossorigin="anonymous"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/mustache.js/2.3.0/mustache.min.js" integrity="sha256-iaqfO5ue0VbSGcEiQn+OeXxnxAMK2+QgHXIDA5bWtGI="
-    crossorigin="anonymous"></script>
+          crossorigin="anonymous"></script>
   <script data-th-src="${cartRoute + '/js/cart-scripts.js'}"></script>
 </body>
 

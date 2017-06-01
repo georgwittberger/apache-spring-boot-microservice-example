@@ -1,4 +1,20 @@
 body {
   font-family: Arial, Helvetica, sans-serif;
-  font-size: 9pt;
+  font-size: 12pt;
+  padding: 20px;
+}
+
+header, footer {
+  font-size: 16pt;
+  border: 2px dotted blue;
+  padding: 20px;
+}
+
+footer {
+  margin-top: 20px;
+}
+
+h1 {
+  color: gray;
+  font-size: 24pt;
 }

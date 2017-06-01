@@ -1,10 +1,43 @@
-<div class="product-details">
-  <p>This fragment is delivered by the product service.</p>
-  <h2 data-th-text="${product.name}">Product Name</h2>
-  <p data-th-text="${product.description}">Product Description</p>
-  <p data-th-text="${#numbers.formatCurrency(product.price)}">Product Price</p>
-  <p>
-    <a href="#" class="cart-js--add-line-item" data-th-data-product-seo-name="${product.seoName}">Add to cart</a>
-    <a data-th-href="${contentRoute + '/'}">Back to home page</a>
-  </p>
-</div>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title data-th-text="${product.name + ' Product Page'}">Product Page</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="contentRoute" data-th-content="${contentRoute}">
+  <meta name="productRoute" data-th-content="${productRoute}">
+  <meta name="cartRoute" data-th-content="${cartRoute}">
+  <link data-th-href="${contentRoute + '/css/content-styles.css'}" rel="stylesheet">
+  <link data-th-href="${productRoute + '/css/product-styles.css'}" rel="stylesheet">
+  <link data-th-href="${cartRoute + '/css/cart-styles.css'}" rel="stylesheet">
+</head>
+
+<body>
+
+  <!--#include virtual="[[${contentRoute}]]/fragments/default-header.html" -->
+
+  <h1 data-th-text="${product.name + ' Product Page'}">Product Page</h1>
+  <p>This page is delivered by the product service. It contains server-side includes for the header and footer.</p>
+  <p>You have <span class="cart-line-item-count cart-js-line-item-count">0</span> products in your cart.
+    <a href="#" data-th-href="${cartRoute}">View cart</a></p>
+
+  <div class="product-details">
+    <h2 data-th-text="${product.name}">Product Name</h2>
+    <p data-th-text="${product.description}">Product Description</p>
+    <p data-th-text="${#numbers.formatCurrency(product.price)}">Product Price</p>
+    <p>
+      <a href="#" class="cart-js-add-line-item" data-th-data-product-seo-name="${product.seoName}">Add to cart</a>
+      <a href="#" data-th-href="${productRoute}">Back to products list</a>
+    </p>
+  </div>
+
+  <!--#include virtual="[[${contentRoute}]]/fragments/default-footer.html" -->
+
+  <!-- Load jQuery required by the cart scripts. -->
+  <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+          crossorigin="anonymous"></script>
+  <script data-th-src="${cartRoute + '/js/cart-scripts.js'}"></script>
+</body>
+
+</html>

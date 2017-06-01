@@ -1,3 +1,14 @@
-.line-item-list {
-  border: 2px dashed orange;
+.line-items-table {
+  margin: 20px 0;
+  width: 100%;
+}
+
+.line-items-table th {
+  text-align: left;
+  border-bottom: 2px solid gray;
+}
+
+.cart-line-item-count {
+  border: 2px dotted blue;
+  padding: 0 5px;
 }
